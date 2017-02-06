@@ -1,0 +1,72 @@
+<!-- Stolen from: https://git.io/vPNfe-->
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="disable-zoom.js"></script>
+  <link rel="stylesheet" href="cropper.css">
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" class="window-dragger">
+    <rect x="0" y="0" width="100%" height="100%" class="stroke-black"/>
+    <rect x="0" y="0" width="100%" height="100%" class="stroke-white"/>
+  </svg>
+
+  <script>
+    const {ipcRenderer, remote} = require('electron');
+    const aperture = require('aperture')();
+
+    // Will be called if mainRenderer send onStartRecording
+    ipcRenderer.on('onStartRecording', (event, cropperWindowBounds) => {
+      const display = remote.screen.getDisplayMatching(cropperWindowBounds);
+      if (display.id === remote.screen.getPrimaryDisplay().id) {
+        cropperWindowBounds.y = screen.height - (cropperWindowBounds.y + cropperWindowBounds.height);
+      } else {
+        const displayBounds = display.bounds;
+        cropperWindowBounds.x = Math.abs(displayBounds.x - cropperWindowBounds.x);
+        cropperWindowBounds.y = Math.abs(displayBounds.y - cropperWindowBounds.y);
+
+        cropperWindowBounds.y = displayBounds.height - (cropperWindowBounds.y + cropperWindowBounds.height);
+      }
+      fixCropperWindowBounds(cropperWindowBounds)
+      console.log(cropperWindowBounds)
+      const cropArea = {x: cropperWindowBounds.x, y: cropperWindowBounds.y, width: cropperWindowBounds.width, height: cropperWindowBounds.height};
+
+      aperture.startRecording({fps: 30, cropArea: cropArea, displayId: display.id})
+        .then(filePath => {
+          ipcRenderer.send('on-recording-started', "")
+        })
+    })
+
+    ipcRenderer.on('onStopRecording', (event, arg) => {
+      aperture.stopRecording()
+        .then(filepath => {
+          console.log(filepath)
+          ipcRenderer.send('on-recording-stopped', filepath)
+        });
+    })
+
+    function fixCropperWindowBounds(cropperWindowBounds) {
+      // the dashed border is 2px wide
+      cropperWindowBounds.x += 2;
+      cropperWindowBounds.y += 2;
+      cropperWindowBounds.width -= 4;
+      cropperWindowBounds.height -= 4;
+    }
+
+    // Stuff for destroing the window when ESC clicked
+    const ESC_KEY_CODE = 27;
+
+    function autoDestroy() {
+      ipcRenderer.send('close-cropper-window', "");
+    }
+
+    function keyUp(event) {
+      if (event.keyCode === ESC_KEY_CODE) {
+        autoDestroy();
+      }
+    }
+
+    window.addEventListener('keyup', keyUp, false);
+  </script>
+</body>
+</html>

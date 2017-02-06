@@ -1,0 +1,17 @@
+<!-- Stolen from: https://git.io/vPNfe-->
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+  const {ipcRenderer} = require('electron')
+
+  // Listen for notificationPosted events
+  ipcRenderer.on('notificationPosted' , function(event , notifyTitle, notifyBody, notifyIcon) {
+    new Notification(notifyTitle, {
+      body: notifyBody,
+      icon: notifyIcon
+    })
+  })
+</script>
+</body>
+</html>
