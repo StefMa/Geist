@@ -4,6 +4,9 @@
 `Geist` is an easy to use upload tool.
 It use [Firebase Storage](https://firebase.google.com/docs/storage/) to store files in the cloud.
 
+## Features
+See this article on [Medium](https://medium.com/@StefMa/geist-uploading-made-easy-6d8769469fa4).
+
 ## Setup
 Before you start you need to follow these steps to setup `Geist` correctly.
 
