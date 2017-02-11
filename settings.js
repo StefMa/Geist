@@ -31,6 +31,10 @@ module.exports = {
     return settings.getSync(recentUploadsKeyPath)
   },
 
+  setOnRecentUploadedUrlChangedListener: (listener) => {
+    return settings.observe(recentUploadsKeyPath, listener)
+  },
+
   addRecentUploadedUrl: (url) => {
     var recentUploadedUrls = module.exports.getRecentUploadedUrls()
     // Create new array if not exist yet

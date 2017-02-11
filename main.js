@@ -8,6 +8,7 @@ const dialog = electron.dialog
 const clipboard = electron.clipboard
 const globalShortcut = electron.globalShortcut
 const nativeImage = electron.nativeImage
+const electronShell = electron.shell
 const path = require('path')
 const mime = require('mime');
 const fs = require("fs")
@@ -32,6 +33,8 @@ let recordTray
 let recordState
 let recordUploadMode
 
+var trayTemplate
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -47,7 +50,7 @@ app.on('ready', () => {
   if (tray == null) {
     var iconPath = path.join(__dirname, 'assets/tray/IconTemplate.png')
     tray = new Tray(iconPath)
-    const contextMenu = Menu.buildFromTemplate([
+    trayTemplate = [
       {
         label: 'Upload File...',
         click: function () {
@@ -76,6 +79,27 @@ app.on('ready', () => {
           createCropperWindow()
           createRecordTray();
         }
+      },
+      { type: 'separator' },
+      {
+        label: 'Recent uploads',
+        submenu: [
+          {
+            visible: false
+          },
+          {
+            visible: false
+          },
+          {
+            visible: false
+          },
+          {
+            visible: false
+          },
+          {
+            visible: false
+          },
+        ]
       },
       { type: 'separator' },
       {
@@ -113,13 +137,15 @@ app.on('ready', () => {
           app.quit()
         }
       }
-    ])
+    ]
     tray.on('drop-files', function(event, filepath) {
       displayUploadImages()
       uploadFile(filepath[0])
     })
     tray.setToolTip(app.getName())
-    tray.setContextMenu(contextMenu)
+    recreateTray()
+
+    setupUploadUrlsMenuItem(trayTemplate[6])
   }
 
   // Register globalShortcut
@@ -166,6 +192,36 @@ app.on('will-quit', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+function setupUploadUrlsMenuItem(menuItem) {
+  // set uploaded urls on start
+  var uploadedUrls = settings.getRecentUploadedUrls()
+  if (typeof uploadedUrls !== 'undefined') {
+    setUploadedUrlsToMenuItem(menuItem, uploadedUrls)
+  }
+
+  // set listener and change tray at runtime
+  settings.setOnRecentUploadedUrlChangedListener((evt) => {
+    var uploadedUrls = evt.newValue
+    setUploadedUrlsToMenuItem(menuItem, uploadedUrls)
+  })
+}
+
+function setUploadedUrlsToMenuItem(menuItem, uploadedUrls) {
+  for (i = 0; i < uploadedUrls.length; i++) {
+    var subMenuItem = menuItem.submenu[i]
+    subMenuItem.visible = true
+    subMenuItem.label = uploadedUrls[i]
+    subMenuItem.click = (item) => {
+      electronShell.openExternal(item.label)
+    }
+    recreateTray()
+  }
+}
+
+function recreateTray() {
+  tray.setContextMenu(Menu.buildFromTemplate(trayTemplate))
+}
 
 // Upload the file to loadingWin
 // Param 1: The path of the file
@@ -339,9 +395,11 @@ ipc.on('on-recording-stopped', (event, filePath) => {
 })
 
 // Listen and response from ipcRenderer
-ipc.on('shortUrl', function (event, arg) {
+ipc.on('shortUrl', function (event, shortUrl) {
+  // Save link to settings
+  settings.addRecentUploadedUrl(shortUrl)
   // Save link to file to clipboard
-  clipboard.writeText(arg)
+  clipboard.writeText(shortUrl)
   clearTimers()
   sendNotification("Uploaded", "Your file was successfully uploaded...")
 })
