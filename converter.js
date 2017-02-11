@@ -19,9 +19,9 @@ function createPalette(tmpDir, videoPath, onSuccess, onError) {
 }
 
 function createGif(highQuality, palettePath, videoPath, gifPath, onSuccess, onError) {
-  var command = 'ffmpeg -y -i ' + videoPath + ' ' + gifPath
+  var command = 'ffmpeg -y -i ' + videoPath + ' -r 15 ' + gifPath
   if (highQuality) {
-    var command = 'ffmpeg -y -i ' + videoPath + ' -i ' + palettePath + ' -lavfi \"scale=640:-1,paletteuse\" ' + gifPath
+    var command = 'ffmpeg -y -i ' + videoPath + ' -i ' + palettePath + ' -lavfi \"scale=640:-1,paletteuse,fps=15\" ' + gifPath
   }
 
   // Create the gif
