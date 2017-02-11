@@ -17,6 +17,8 @@ const timerHandler = require('./timerhandler')
 const converter = require('./converter')
 const settings = require('./settings')
 
+const FIREBASE_PROJECT_ID = "$YOUR_🔥BASE_PROJECTID"
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let tray
@@ -163,7 +165,7 @@ app.on('ready', () => {
 
   // Create loadingWin (always "available" in background "as a service")
   loadingWin = new BrowserWindow({width: 0, height: 0, frame: false, x: 0, y: 0, resizable: false, moveable: false})
-  loadingWin.loadURL(`https://$YOUR_🔥BASE_PROJECTID.firebaseapp.com/upload`)
+  loadingWin.loadURL("https://" + FIREBASE_PROJECT_ID + ".firebaseapp.com/upload")
   //loadingWin.webContents.openDevTools({mode: "detach"})
 
   // Create online/offline-status-changed window
@@ -289,7 +291,7 @@ function convertVidToGif(videoPath) {
 function createSettingsWindow() {
   // Create the browser window.
   settingsWin = new BrowserWindow({width: 800, height: 750})
-  settingsWin.loadURL(`https://$YOUR_🔥BASE_PROJECTID.firebaseapp.com`)
+  settingsWin.loadURL("https://" + FIREBASE_PROJECT_ID + ".firebaseapp.com")
   // win.webContents.openDevTools()
 
   // Emitted when the window is closed.
