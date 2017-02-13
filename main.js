@@ -1,19 +1,22 @@
-const {app, BrowserWindow} = require('electron')
-const path = require('path')
 const electron = require('electron')
+const app = electron.app
+const BrowserWindow = electron.BrowserWindow
 const ipc = electron.ipcMain
 const Menu = electron.Menu
 const Tray = electron.Tray
-const {dialog} = require('electron')
-const {clipboard} = require('electron')
-const {globalShortcut} = require('electron')
+const dialog = electron.dialog
+const clipboard = electron.clipboard
+const globalShortcut = electron.globalShortcut
+const nativeImage = electron.nativeImage
+const path = require('path')
 const mime = require('mime');
 const fs = require("fs")
 const shell = require('shelljs/global');
-const nativeImage = require('electron').nativeImage
 const timerHandler = require('./timerhandler')
 const converter = require('./converter')
 const settings = require('./settings')
+
+const FIREBASE_PROJECT_ID = "$YOUR_🔥BASE_PROJECTID"
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -31,6 +34,8 @@ let recordTray
 let recordState
 let recordUploadMode
 
+var trayTemplate
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -46,7 +51,7 @@ app.on('ready', () => {
   if (tray == null) {
     var iconPath = path.join(__dirname, 'assets/tray/IconTemplate.png')
     tray = new Tray(iconPath)
-    const contextMenu = Menu.buildFromTemplate([
+    trayTemplate = [
       {
         label: 'Upload File...',
         click: function () {
@@ -75,6 +80,27 @@ app.on('ready', () => {
           createCropperWindow()
           createRecordTray();
         }
+      },
+      { type: 'separator' },
+      {
+        label: 'Recent uploads',
+        submenu: [
+          {
+            visible: false
+          },
+          {
+            visible: false
+          },
+          {
+            visible: false
+          },
+          {
+            visible: false
+          },
+          {
+            visible: false
+          },
+        ]
       },
       { type: 'separator' },
       {
@@ -112,13 +138,15 @@ app.on('ready', () => {
           app.quit()
         }
       }
-    ])
+    ]
     tray.on('drop-files', function(event, filepath) {
       displayUploadImages()
       uploadFile(filepath[0])
     })
     tray.setToolTip(app.getName())
-    tray.setContextMenu(contextMenu)
+    recreateTray()
+
+    setupUploadUrlsMenuItem(trayTemplate[6])
   }
 
   // Register globalShortcut
@@ -136,7 +164,7 @@ app.on('ready', () => {
 
   // Create loadingWin (always "available" in background "as a service")
   loadingWin = new BrowserWindow({width: 0, height: 0, frame: false, x: 0, y: 0, resizable: false, moveable: false})
-  loadingWin.loadURL(`https://$YOUR_🔥BASE_PROJECTID.firebaseapp.com/upload`)
+  loadingWin.loadURL("https://" + FIREBASE_PROJECT_ID + ".firebaseapp.com/upload")
   //loadingWin.webContents.openDevTools({mode: "detach"})
 
   // Create online/offline-status-changed window
@@ -165,6 +193,36 @@ app.on('will-quit', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+function setupUploadUrlsMenuItem(menuItem) {
+  // set uploaded urls on start
+  var uploadedUrls = settings.getRecentUploadedUrls()
+  if (typeof uploadedUrls !== 'undefined') {
+    setUploadedUrlsToMenuItem(menuItem, uploadedUrls)
+  }
+
+  // set listener and change tray at runtime
+  settings.setOnRecentUploadedUrlChangedListener((evt) => {
+    var uploadedUrls = evt.newValue
+    setUploadedUrlsToMenuItem(menuItem, uploadedUrls)
+  })
+}
+
+function setUploadedUrlsToMenuItem(menuItem, uploadedUrls) {
+  for (i = 0; i < uploadedUrls.length; i++) {
+    var subMenuItem = menuItem.submenu[i]
+    subMenuItem.visible = true
+    subMenuItem.label = uploadedUrls[i]
+    subMenuItem.click = (item) => {
+      clipboard.writeText(item.label)
+    }
+    recreateTray()
+  }
+}
+
+function recreateTray() {
+  tray.setContextMenu(Menu.buildFromTemplate(trayTemplate))
+}
 
 // Upload the file to loadingWin
 // Param 1: The path of the file
@@ -232,7 +290,7 @@ function convertVidToGif(videoPath) {
 function createSettingsWindow() {
   // Create the browser window.
   settingsWin = new BrowserWindow({width: 800, height: 750})
-  settingsWin.loadURL(`https://$YOUR_🔥BASE_PROJECTID.firebaseapp.com`)
+  settingsWin.loadURL("https://" + FIREBASE_PROJECT_ID + ".firebaseapp.com")
   // win.webContents.openDevTools()
 
   // Emitted when the window is closed.
@@ -338,9 +396,11 @@ ipc.on('on-recording-stopped', (event, filePath) => {
 })
 
 // Listen and response from ipcRenderer
-ipc.on('shortUrl', function (event, arg) {
+ipc.on('shortUrl', function (event, shortUrl) {
+  // Save link to settings
+  settings.addRecentUploadedUrl(shortUrl)
   // Save link to file to clipboard
-  clipboard.writeText(arg)
+  clipboard.writeText(shortUrl)
   clearTimers()
   sendNotification("Uploaded", "Your file was successfully uploaded...")
 })

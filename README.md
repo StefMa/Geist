@@ -11,7 +11,7 @@ See this article on [Medium](https://medium.com/@StefMa/geist-uploading-made-eas
 Before you start you need to follow these steps to setup `Geist` correctly.
 
 1. Create a `Geist Server` instance (See [`Geist Server Setup`](https://github.com/stefma/Geist-Server)).
-2. Replace all `$YOUR_🔥BASE_PROJECTID` with your Firebase Project Id in [`main.js`](main.js)
+2. Replace the `$YOUR_🔥BASE_PROJECTID` with your Firebase Project Id in [`main.js`](main.js)
 3. [Build `Geist`](#how-to-build).
 4. Create a User. Run `Geist`, open the Tray -> Settings and click sign up.
 ![create a user](art/sign_up.png)
