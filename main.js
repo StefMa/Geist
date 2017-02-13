@@ -8,7 +8,6 @@ const dialog = electron.dialog
 const clipboard = electron.clipboard
 const globalShortcut = electron.globalShortcut
 const nativeImage = electron.nativeImage
-const electronShell = electron.shell
 const path = require('path')
 const mime = require('mime');
 const fs = require("fs")
@@ -215,7 +214,7 @@ function setUploadedUrlsToMenuItem(menuItem, uploadedUrls) {
     subMenuItem.visible = true
     subMenuItem.label = uploadedUrls[i]
     subMenuItem.click = (item) => {
-      electronShell.openExternal(item.label)
+      clipboard.writeText(item.label)
     }
     recreateTray()
   }
