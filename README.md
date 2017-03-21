@@ -44,6 +44,21 @@ This will also remove the App from the recent window (tab switcher).
 
 > **Note:** You can also build a single `.app` file with `yarn run pack`
 
+## Update/Release
+
+### Version
+If we update it is mandatory to update the `version` inside the [package.json](package.json).
+
+The version number should follow [these](http://semver.org/) specs.
+
+### GitHub Release
+After we published we have to create a [GitHub Release](https://github.com/StefMa/Geist/releases).
+
+For that we needed a tag which will be named as `release/vX.X.X`.
+The X.X.X represent the version we specified with the step above.
+
+It is also necessary to add a changelog.
+
 ## Credits
 * [`aperture`](https://github.com/wulkano/aperture) - For this awesome screen recoding tool
 * [`Kap`](https://github.com/wulkano/kap) - For making Kap open source! I've looked for some stuff how they implemented it. That have helped me a lot with this project! Thank you ❤️.
