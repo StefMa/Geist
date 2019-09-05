@@ -86,18 +86,23 @@ app.on('ready', () => {
         label: 'Recent uploads',
         submenu: [
           {
+            label: '',
             visible: false
           },
           {
+            label: '',
             visible: false
           },
           {
+            label: '',
             visible: false
           },
           {
+            label: '',
             visible: false
           },
           {
+            label: '',
             visible: false
           },
         ]
@@ -163,17 +168,21 @@ app.on('ready', () => {
   })
 
   // Create loadingWin (always "available" in background "as a service")
-  loadingWin = new BrowserWindow({width: 0, height: 0, frame: false, x: 0, y: 0, resizable: false, moveable: false})
+  loadingWin = new BrowserWindow({width: 0, height: 0, frame: false, x: 0, y: 0, resizable: false, moveable: false, webPreferences: {nodeIntegration: true}})
   loadingWin.loadURL("https://" + FIREBASE_PROJECT_ID + ".firebaseapp.com/upload")
-  //loadingWin.webContents.openDevTools({mode: "detach"})
 
   // Create online/offline-status-changed window
-  onlineStatusWin = new BrowserWindow({width: 0, height: 0, frame: false, x: 0, y: 0, resizable: false, moveable: false})
+  onlineStatusWin = new BrowserWindow({width: 0, height: 0, frame: false, x: 0, y: 0, resizable: false, moveable: false, webPreferences: {nodeIntegration: true}})
   onlineStatusWin.loadURL(`file://${__dirname}/online-status.html`)
 
   // Create notification-service window to post notification from mainRenderer
-  notificationServiceWin = new BrowserWindow({width: 0, height: 0, frame: false, x: 0, y: 0, resizable: false, moveable: false})
+  notificationServiceWin = new BrowserWindow({width: 0, height: 0, frame: false, x: 0, y: 0, resizable: false, moveable: false, webPreferences: {nodeIntegration: true}})
   notificationServiceWin.loadURL(`file://${__dirname}/notification-service.html`)
+
+  // Enable for debugging screens
+  //loadingWin.webContents.openDevTools({mode: "detach"})
+  //onlineStatusWin.webContents.openDevTools({mode: "detach"})
+  //notificationServiceWin.webContents.openDevTools({mode: "detach"})
 })
 
 // Quit when all windows are closed.
@@ -229,7 +238,7 @@ function recreateTray() {
 // Param 2: (Optional) a suffix for the basename. Will be added with "_[SUFFIX]"
 function uploadFile(filepath, suffix) {
   var base64str = fs.readFileSync(filepath, "base64");
-  var mimeType = mime.lookup(filepath)
+  var mimeType = mime.getType(filepath)
   var parsedFile = path.parse(filepath)
   var baseName = parsedFile['name']
   if (typeof suffix !== 'undefined') {
@@ -341,7 +350,8 @@ function createCropperWindow() {
     shadow: false,
     enableLargerThanScreen: true,
     x: 'center',
-    y: 'center'
+    y: 'center',
+    webPreferences: {nodeIntegration: true}
   });
   cropperWindow.loadURL(`file://${__dirname}/cropper.html`);
   cropperWindow.setIgnoreMouseEvents(false);

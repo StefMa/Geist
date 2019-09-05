@@ -41,7 +41,6 @@ This will build a `.app`, `.zip` & `.dmg` file into the `dist/mac` directory.
 Actually it builds for `mac x64`.
 
 This will also remove the App from the recent window (tab switcher).
-See [`Info.plist`](build/Info.plist).
 
 > **Note:** You can also build a single `.app` file with `yarn run pack`
 
