@@ -350,7 +350,8 @@ function createCropperWindow() {
     shadow: false,
     enableLargerThanScreen: true,
     x: 'center',
-    y: 'center'
+    y: 'center',
+    webPreferences: {nodeIntegration: true}
   });
   cropperWindow.loadURL(`file://${__dirname}/cropper.html`);
   cropperWindow.setIgnoreMouseEvents(false);
