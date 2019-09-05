@@ -238,7 +238,7 @@ function recreateTray() {
 // Param 2: (Optional) a suffix for the basename. Will be added with "_[SUFFIX]"
 function uploadFile(filepath, suffix) {
   var base64str = fs.readFileSync(filepath, "base64");
-  var mimeType = mime.lookup(filepath)
+  var mimeType = mime.getType(filepath)
   var parsedFile = path.parse(filepath)
   var baseName = parsedFile['name']
   if (typeof suffix !== 'undefined') {

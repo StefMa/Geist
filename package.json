@@ -6,7 +6,7 @@
   "description": "Simple App to upload files to Firebase Storage",
   "author": "Stefan <StefMa> M.",
   "dependencies": {
-    "mime": "1.3.4",
+    "mime": "2.4.4",
     "shelljs": "0.7.0",
     "aperture": "2.0.0",
     "electron-settings": "2.2.1"
