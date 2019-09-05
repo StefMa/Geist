@@ -12,16 +12,20 @@
     "electron-settings": "2.2.1"
   },
   "devDependencies": {
-    "electron-builder": "10.7.0",
+    "electron-builder": "21.2.0",
     "electron": "6.0.7"
   },
   "build": {
     "appId": "guru.stefma.geist",
-    "extend-info": "build/Info.plist",
+    "mac": {
+      "extendInfo": {
+        "LSUIElement": 1
+      }
+    },
     "asar": false
   },
   "scripts": {
-    "pack": "build -m --x64 --dir",
-    "distribute": "build -m --x64"
+    "pack": "electron-builder --mac --x64 --dir",
+    "distribute": "electron-builder --mac --x64"
   }
 }
